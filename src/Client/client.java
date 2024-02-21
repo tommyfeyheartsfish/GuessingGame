@@ -36,16 +36,18 @@ public class client {
             Scanner scanner =new Scanner(System.in);
 
             String response;
+            String messageToSend;
             do{
                 //prompt the user for input
-                String messageToSend = scanner.nextLine();
+                messageToSend = scanner.nextLine();
                 out.println(messageToSend);
 
         // Read and print the response from the server
                 response = in.readLine();
                 System.out.println(response);
+                
 
-        }while(!"disconnected".equalsIgnoreCase(response));
+        }while(!"disconnect".equalsIgnoreCase(messageToSend));
     } catch (IOException i) {
             System.out.println(i);
         }       

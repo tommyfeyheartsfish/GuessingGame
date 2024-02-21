@@ -2,7 +2,7 @@ package Server;
 //Parses and processes RPC requests, dispatching them to the appropriate handler methods.
 //read in from the client 
 //
-
+//TODO: figure out how to delete a client!!!~~~~
 public class RPCProcessor {
     private String input;
     private String inputParts[];
@@ -15,9 +15,8 @@ public class RPCProcessor {
     public String rpcProcessor(){
         String response=null;
         switch (inputParts[0]){
-            case "connect":
-                //call connection class
-                response = connection();
+            case "username":
+                response = addUser();
                 break;
             case "disconnect":
                 response = disconnect();
@@ -37,7 +36,7 @@ public class RPCProcessor {
         }
         return response;
     }
-    private String connection(){
+    private String addUser(){
         //if there is a third item in the array 
         //if there is no second item in the array 
         if(inputParts.length!=2)

@@ -4,7 +4,7 @@ package Server;
 //Runs in its own thread for each client connection.
 
 //Handles all interactions with a client, such as receiving requests, processing them (e.g., by calling methods in GameController), and sending responses back to the client.
-
+//TODO: !!!!!add code to ask for username as the game begins!!!~~~~~~
 //Uses synchronization mechanisms (like mutexes) when accessing or modifying shared resources to ensure thread safety.
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,8 +29,14 @@ public class ClientHandler implements Runnable{
             //to read text from the client
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ){
+            //ask user for the username 
+            out.println("What is your username? ");
+            RPCProcessor rpcCall4Name = new RPCProcessor(in.readLine());          
+            String response4Name = rpcCall4Name.rpcProcessor();
+            out.println(response4Name);
+
             String inputLine;
-            while((inputLine = in.readLine())!=null){
+            while((inputLine = in.readLine())!="disconnect"){
                 //process input from the client
                 RPCProcessor rpcCall = new RPCProcessor(inputLine);
                 //send it to RPC Process
