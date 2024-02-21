@@ -13,7 +13,7 @@ public class GlobalContext{
         private static volatile GlobalContext instance;
     
         // Thread-safe collection for global state
-        private final ConcurrentHashMap<String, Object> clientData;
+        private final ConcurrentHashMap<String, Client> clientData;
     
         // Private constructor
         private GlobalContext() {
@@ -33,12 +33,12 @@ public class GlobalContext{
         }
     
         // Thread-safe method to add an item
-        public void addItem(String key, Object value) {
-            clientData.put(key, value);
+        public void addItem(String key, Client value) {
+                clientData.put(key, value);
         }
     
         // Thread-safe method to update an item
-        public void updateItem(String key, Object newValue) {
+        public void updateItem(String key, Client newValue) {
             // The same as addItem in functionality, as ConcurrentHashMap replaces the value for the given key
             clientData.put(key, newValue);
         }
@@ -53,6 +53,8 @@ public class GlobalContext{
             clientData.clear();
         }
         
-        // Additional thread-safe access methods as needed
+        public boolean keyFound(String key){
+            return clientData.containsKey(key);
+        }
     }
     

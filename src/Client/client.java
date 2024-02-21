@@ -43,12 +43,11 @@ public class client {
 
         // Read and print the response from the server
                 response = in.readLine();
-                System.out.println("Server response: " + response);
+                System.out.println(response);
 
         }while(!"disconnected".equalsIgnoreCase(response));
     } catch (IOException i) {
-            System.out.println(i.getMessage());
-            i.printStackTrace();
+            System.out.println(i);
         }       
         
         

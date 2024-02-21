@@ -34,7 +34,8 @@ public class ClientHandler implements Runnable{
                 //process input from the client
                 RPCProcessor rpcCall = new RPCProcessor(inputLine);
                 //send it to RPC Process
-                out.println("Echo: " + inputLine);
+                String response = rpcCall.rpcProcessor();
+                out.println(response);
             }
         }catch(IOException e){
             System.err.println("Exception handling client: "+e.getMessage());

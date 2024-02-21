@@ -9,14 +9,18 @@ public class RPCProcessor {
 
     public RPCProcessor(String input){
         this.input = input; 
-        //how to solit the string
         inputParts = input.split("\\s+");
+    }
+
+    public String rpcProcessor(){
+        String response=null;
         switch (inputParts[0]){
             case "connect":
                 //call connection class
+                response = connection();
                 break;
             case "disconnect":
-                //call disconnect class
+                response = disconnect();
                 break;
             case "guess":
                 //call guess class
@@ -31,19 +35,34 @@ public class RPCProcessor {
                 System.out.println("Unknown RPC call: " + input);
                 break;
         }
-
+        return response;
     }
-    //TODO:how does the connection exccute 
-    //
-    //TODO:make sure there is no inoutParts[3]
-    private void connection(){
-        String username = inputParts[1];
-        String password = inputParts[2];
-        //call 
+    private String connection(){
+        //if there is a third item in the array 
+        //if there is no second item in the array 
+        if(inputParts.length!=2)
+        {
+            return "username can't have space.";
+        }
+        else 
+        {
+            String username = inputParts[1];
+           
+            if(GlobalContext.getInstance().keyFound(username))
+            {
+                return "Username is taken.";
+            }
+            else 
+            { 
+                Client newClient = new Client(username);
+                GlobalContext.getInstance().addItem(username,newClient);
+                return "Welcome "+username;
+            } 
+        }
     }
 
-    //TODO:
-     private void disconnect(){
+     private String disconnect(){
+        
 
      }
 
