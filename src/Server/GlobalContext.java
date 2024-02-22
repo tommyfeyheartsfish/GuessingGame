@@ -2,6 +2,8 @@
 
 //Accessed and modified by ClientHandler instances, requiring careful synchronization to prevent race conditions and ensure data consistency.
 package Server;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 public class GlobalContext{
     //arraylist that manage the database for the game status, static
@@ -33,8 +35,9 @@ public class GlobalContext{
         }
     
         // Thread-safe method to add an item
-        public void addItem(String key, Client value) {
+        public int addItem(String key, Client value) {
                 clientData.put(key, value);
+                return 1;
         }
     
         // Thread-safe method to update an item
@@ -55,6 +58,16 @@ public class GlobalContext{
         
         public boolean keyFound(String key){
             return clientData.containsKey(key);
+        }
+
+        // New method to get the number of online clients
+        public int getOnlineClientCount() {
+            return clientData.size();
+        }
+
+        // New method to get a list of online clients
+        public Set<String> getOnlineClients() {
+            return new HashSet<>(clientData.keySet());
         }
     }
     

@@ -15,9 +15,6 @@ public class RPCProcessor {
     public String rpcProcessor(){
         String response=null;
         switch (inputParts[0]){
-            case "username":
-                response = addUser();
-                break;
             case "disconnect":
                 response = disconnect();
                 break;
@@ -36,32 +33,32 @@ public class RPCProcessor {
         }
         return response;
     }
-    private String addUser(){
-        //if there is a third item in the array 
-        //if there is no second item in the array 
-        if(inputParts.length!=2)
-        {
-            return "username can't have space.";
-        }
-        else 
-        {
-            String username = inputParts[1];
+    // public String addUser(){
+    //     //if there is a third item in the array 
+    //     //if there is no second item in the array 
+    //     if(inputParts.length!=2)
+    //     {
+    //         return "username can't have space.";
+    //     }
+    //     else 
+    //     {
+    //         String username = inputParts[1];
            
-            if(GlobalContext.getInstance().keyFound(username))
-            {
-                return "Username is taken.";
-            }
-            else 
-            { 
-                Client newClient = new Client(username);
-                GlobalContext.getInstance().addItem(username,newClient);
-                return "Welcome "+username;
-            } 
-        }
-    }
+    //         if(GlobalContext.getInstance().keyFound(username))
+    //         {
+    //             return "Username is taken.";
+    //         }
+    //         else 
+    //         { 
+    //             Client newClient = new Client(username);
+    //             GlobalContext.getInstance().addItem(username,newClient);
+    //             return "Welcome "+username;
+    //         } 
+    //     }
+    // }
 
      private String disconnect(){
-        
+        //if there is a user, then delete the user info
 
      }
 

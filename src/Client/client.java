@@ -20,6 +20,7 @@ public class client {
     private Socket socket = null;
     private PrintWriter out;
     private BufferedReader in;
+    private ClientContext client;
     // constructor to put ip address and port
     public client(String address, int port)
     {
@@ -34,6 +35,18 @@ public class client {
             // BufferedReader to read data from the server
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             Scanner scanner =new Scanner(System.in);
+        
+            //ask for username
+           do{
+             System.out.print("Username: ");
+            String key = scanner.nextLine();
+            //send it to the server 
+            out.println(key);
+            //get the response from the server 
+            String reply = in.readLine();
+            System.out.println(reply);
+            client.setUsername(key);
+           }while (client.getUsername()==null);
 
             String response;
             String messageToSend;

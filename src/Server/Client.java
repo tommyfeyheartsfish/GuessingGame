@@ -5,6 +5,7 @@ public class Client {
     private String lastGuessedNum;
     private int lastCorrectlyGuessedNum;
     private String username; // Assuming you need a username field as well
+    private boolean status; 
 
     // Constructor
     public Client(String username) {
@@ -12,6 +13,16 @@ public class Client {
         this.score = 0; // Initialized to 0
         this.lastGuessedNum = null; // Initialized to null
         this.lastCorrectlyGuessedNum = 0; // Initialized to 0
+        this.status=false;
+    }
+    
+    //constructor overload 
+    public Client(){
+        this.username = null;
+        this.score = 0; // Initialized to 0
+        this.lastGuessedNum = null; // Initialized to null
+        this.lastCorrectlyGuessedNum = 0; // Initialized to 0
+        this.status=false;
     }
 
     // Getters and Setters
@@ -21,6 +32,20 @@ public class Client {
 
     public void setScore(int score) {
         this.score = score;
+    }
+    public boolean getStatus(){
+        return status;
+    }
+
+    public void flipStatus(){
+        if(status)
+        {
+            status=false;
+        }
+        if(status)
+        {
+            status=true;
+        }
     }
 
     public String getLastGuessedNum() {

@@ -15,12 +15,24 @@ import java.net.Socket;
 public class ClientHandler implements Runnable{
 
     private Socket clientSocket;
-
+    private String key; //username
+    private final String rpcCall[] = {"disconnect","guess","exit","print score"};
     //constructor 
     public ClientHandler(Socket socket){
         this.clientSocket = socket;
+        
     }
-
+    private boolean isRPCCall(String s){
+        boolean isRPCCall=false;
+        for(int i = 0; i<rpcCall.length; i++)
+        {
+            if(s.equalsIgnoreCase(rpcCall[i]))
+            {
+                isRPCCall=true;
+            }
+        }
+        return isRPCCall;
+    }
     @Override
     public void run(){
         try(
@@ -30,10 +42,25 @@ public class ClientHandler implements Runnable{
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ){
             //ask user for the username 
-            out.println("What is your username? ");
-            RPCProcessor rpcCall4Name = new RPCProcessor(in.readLine());          
-            String response4Name = rpcCall4Name.rpcProcessor();
-            out.println(response4Name);
+            // out.println("Username: ");
+            key=in.readLine();
+            if(GlobalContext.getInstance().keyFound(key))
+            {
+                out.println("Username is taken.");
+            }
+            if(isRPCCall(key))
+            {
+                out.println("Username can not be one of the commands.");
+            }
+            else 
+            { 
+                Client newClient = new Client(key);
+                GlobalContext.getInstance().addItem(key,newClient);
+                out.println("Welcome " + key +"!");
+                int onlineClient = GlobalContext.getInstance().getOnlineClientCount();
+                out.println("Number of players online: " + onlineClient );
+            }
+         
 
             String inputLine;
             while((inputLine = in.readLine())!="disconnect"){
