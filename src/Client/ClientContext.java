@@ -8,8 +8,8 @@ public class ClientContext {
     private boolean status; // Represents whether the client is connected or not
 
     // Constructor
-    public ClientContext(String username) {
-        this.username = username;
+    public ClientContext() {
+        this.username = null;
         this.score = 0;
         this.lastGuessedNum = null;
         this.lastCorrectlyGuessedNum = 0;
