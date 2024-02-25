@@ -55,20 +55,20 @@ package Server;
         private String processMessage(String message) {
             String response; 
 
-            if ("quit".equalsIgnoreCase(message.trim())) {
-                // Special case for quitting
-                response = "Goodbye!";
-                try {
-                    clientSocket.close(); // Close the connection with this client
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
+            // if ("quit".equalsIgnoreCase(message.trim())) {
+            //     // Special case for quitting
+            //     response = "Goodbye!";
+            //     try {
+            //         clientSocket.close(); // Close the connection with this client
+            //     } catch (IOException e) {
+            //         e.printStackTrace();
+            //     }
+            // } else {
                 RPCProcessor messagProcessor =new RPCProcessor(message,cl);
                 // Process the message from the client
                 response= messagProcessor.rpcProcessor();
                 
-            }
+            // }
             return response;
         }
     }

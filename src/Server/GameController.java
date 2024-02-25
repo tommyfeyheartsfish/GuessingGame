@@ -13,7 +13,8 @@ public class GameController {
     //constructor 
     GameController(){
         Random rad =new Random();
-        ANSWER = rad.nextInt(1000);
+        int max=1000,min=99;
+        ANSWER = rad.nextInt((max - min + 1) + min);
         ANSWER_IN_STRING=String.valueOf(ANSWER);
     }
 

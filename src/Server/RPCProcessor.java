@@ -35,12 +35,12 @@ public class RPCProcessor {
                 response = guess();
                 break; 
             case "score":
-                response=getScore();
+                response = getScore();
                 break;
             case "print score":
                 response = printScore();
                 break;
-            case "end game":
+            case "pass":
                 response = printGuesses();
                 break;
             default:
@@ -76,7 +76,7 @@ public class RPCProcessor {
     public String getOnlineCLients(){
         Set<String> onlineClient = GlobalContext.getInstance().getOnlineClients();
         StringBuilder sb = new StringBuilder();
-        sb.append("Online Clients: ");
+        sb.append("Players online: ");
         if (onlineClient.isEmpty()) {
         sb.append("None");
         } else {
@@ -97,14 +97,20 @@ public class RPCProcessor {
         GlobalContext.getInstance().removeItem(cl.getUsername());
         return "removed";
      }
-
+ 
      private String guess(){
             //call game controller ->call client handler to change the score
             if(inputParts.length!=2)
             {
                 return "space found";
             }
-            else 
+            else if(Integer.valueOf(inputParts[1])<0||Integer.valueOf(inputParts[1])>1000)
+            {
+                return "number out of range";
+            }
+            else if(cl.hasGuessed())
+                return "has guessed";
+            else
             {
                 String guess = inputParts[1];
                 GameController gc = new GameController();
@@ -115,9 +121,10 @@ public class RPCProcessor {
                 cl.setLastGuessedNum(guess);
                 cl.setScore(points);
                 cl.setLastCorrectlyGuessedNum(count);
+                cl.setHasGuessed(true);
                 //update the global context 
                 GlobalContext.getInstance().playerGuessed(cl.getUsername());
-                return "You guessed " + count + " numbers correctly!\nThe answer is "+ answer +".\nYou get "+points+ " points!";
+                return "guess recorded " + answer +" " + count + " "+points;
 
             }
      } 

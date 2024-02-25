@@ -5,7 +5,7 @@ public class ClientContext {
     private String lastGuessedNum;
     private int lastCorrectlyGuessedNum;
     private String username;
-    private boolean status; // Represents whether the client is connected or not
+    private boolean status; // Represents whether the client has guessed or not 
 
     // Constructor
     public ClientContext() {

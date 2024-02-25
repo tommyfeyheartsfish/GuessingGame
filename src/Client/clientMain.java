@@ -20,7 +20,7 @@ public class clientMain {
             // Start the interaction with the server through the user interface
             userInterface.start();
         } catch (IOException e) {
-            System.err.println("Error connecting to the server: " + e.getMessage());
+            System.err.println("Error connercting to the server: " + e.getMessage());
             e.printStackTrace();
         }
     }
