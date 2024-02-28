@@ -17,14 +17,13 @@ package Server;
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
-        private GlobalContext globalContext;
         private Client cl;
      
     
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
-            this.globalContext = GlobalContext.getInstance();
             this.cl = new Client();
+            cl.setWriter(out);
         }
     
         @Override
@@ -55,15 +54,6 @@ package Server;
         private String processMessage(String message) {
             String response; 
 
-            // if ("quit".equalsIgnoreCase(message.trim())) {
-            //     // Special case for quitting
-            //     response = "Goodbye!";
-            //     try {
-            //         clientSocket.close(); // Close the connection with this client
-            //     } catch (IOException e) {
-            //         e.printStackTrace();
-            //     }
-            // } else {
                 RPCProcessor messagProcessor =new RPCProcessor(message,cl);
                 // Process the message from the client
                 response= messagProcessor.rpcProcessor();

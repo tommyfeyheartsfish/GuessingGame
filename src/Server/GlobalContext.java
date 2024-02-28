@@ -29,19 +29,9 @@ public class GlobalContext{
         private final ConcurrentHashMap<String, Boolean> hasGuessed; 
         private final AtomicBoolean gameEnded;
         private long gameStartTime;
+        private GameController gc;
         private ScheduledExecutorService scheduler;
 
-    
-        // Private constructor
-        private GlobalContext() {
-            clientData = new ConcurrentHashMap<>();
-            hasGuessed = new ConcurrentHashMap<>();
-            gameEnded = new AtomicBoolean(false);
-            scheduler = Executors.newScheduledThreadPool(1);
-            startGame();
-        }
-       
-    
         // Method to get the singleton instance
         public static GlobalContext getInstance() {
             if (instance == null) {
@@ -54,11 +44,54 @@ public class GlobalContext{
             return instance;
         }
 
+        // Private constructor
+        private GlobalContext() {
+            clientData = new ConcurrentHashMap<>();
+            hasGuessed = new ConcurrentHashMap<>();
+            gameEnded = new AtomicBoolean(false);
+            scheduler = Executors.newScheduledThreadPool(1);
+            startGame();
+        }
+       
         private void startGame() {
             gameStartTime = System.currentTimeMillis();
             gameEnded.set(false);
             // Schedule the game to end after 10 minutes
-            scheduler.schedule(this::endGame, 10, TimeUnit.MINUTES);
+            scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
+            gc = new GameController();
+        }
+    
+        
+
+       
+
+        public void startNewGame() {
+            resetGameState(); // Reset the game state for a new game
+            startGame();      // Start the new game
+        }
+
+        private void resetGameState() {
+            hasGuessed.clear(); 
+
+            clientData.forEach((key, client) -> {
+                client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
+                client.setLastGuessedNum(null);});
+        }
+
+        public String guess(String clientId, String guess) {
+            // Perform guessing logic, e.g., determine the number of correctly guessed digits
+            int correctlyGuessedDigits = gc.correctDigits(guess); // Stub for actual check logic
+            int pointGain = gc.pointGain(correctlyGuessedDigits);
+        
+            Client client = clientData.get(clientId);
+            if (client != null) {
+                client.setScore(pointGain);
+                client.setLastGuessedNum(String.valueOf(guess));
+                client.setLastCorrectlyGuessedNum(correctlyGuessedDigits);
+                client.setHasGuessed(true);
+                playerGuessed(clientId);
+            }
+            return gc.getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
         }
 
         public void playerGuessed(String key) {
@@ -74,11 +107,29 @@ public class GlobalContext{
 
         public void endGame() {
             if (gameEnded.compareAndSet(false, true)) {
-                // Logic to end the game, e.g., print scores/ranks
-                scheduler.shutdown(); // Shutdown the scheduler
+                String message = printScore();
+                broadcastMessage(message);  
+                scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
+                //assuming server is not shuting down
             }
         }
-
+        public void broadcastMessage(String message) {
+            clientData.values().forEach(client -> client.sendMessage(message));
+        }
+        
+         //for printing the scores after the game ended 
+        private String printScore(){
+            List<Map.Entry<String, Client>> rankedClients = GlobalContext.getInstance().rankClients();
+            StringBuilder sb=new StringBuilder();
+            sb.append("Rankings:");
+            for (int i = 0; i < rankedClients.size(); i++) 
+            {
+                String username = rankedClients.get(i).getKey();
+                int score = rankedClients.get(i).getValue().getScore();
+                sb.append((i + 1) + ". " + username + " - Score: " + score);
+            }
+            return sb.toString();
+        }
         public List<Map.Entry<String, Client>> rankClients() {
         // Sort clients by score in descending order
         return clientData.entrySet().stream()
@@ -106,7 +157,7 @@ public class GlobalContext{
             // The same as addItem in functionality, as ConcurrentHashMap replaces the value for the given key
             clientData.put(key, newValue);
         }
-
+        
         public void removeItem(String key) {
             clientData.remove(key);
         }

@@ -104,27 +104,19 @@ public class RPCProcessor {
             {
                 return "space found";
             }
+            else if(cl.hasGuessed())
+                return "has guessed";
             else if(Integer.valueOf(inputParts[1])<0||Integer.valueOf(inputParts[1])>1000)
             {
                 return "number out of range";
             }
-            else if(cl.hasGuessed())
-                return "has guessed";
+            
             else
             {
                 String guess = inputParts[1];
-                GameController gc = new GameController();
-                int count = gc.correctDigits(guess);
-                int points = gc.pointGain(count);
-                String answer = gc.getAnswer();
-                //update local context
-                cl.setLastGuessedNum(guess);
-                cl.setScore(points);
-                cl.setLastCorrectlyGuessedNum(count);
-                cl.setHasGuessed(true);
-                //update the global context 
-                GlobalContext.getInstance().playerGuessed(cl.getUsername());
-                return "guess recorded " + answer +" " + count + " "+points;
+                String response = GlobalContext.getInstance().guess(cl.getUsername(), guess);
+                cl.getLastGuessedNum();
+                return "guess recorded " + response;
 
             }
      } 

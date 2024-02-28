@@ -36,7 +36,7 @@ public class UserInterface {
             do{
                 command = promptForCommand();
             }while(!command.equalsIgnoreCase("quit"));
-            //print goodbye message
+            
         } catch (IOException e) {
             System.out.println("An error occurred: " + e.getMessage());
             e.printStackTrace();
@@ -152,7 +152,7 @@ public class UserInterface {
         else if("number".equals(responses[0])&&"out".equals(responses[1])){
                 System.out.println("please try again with a 3-digit-number.");
             }
-        else if("has".equals(responses[0])&&"guessed".equals(responses[1])){
+        else if("has guessed".equals(response)){
             System.out.println("You have made the guessed in this round already.");
         }
         else if ("guess".equals(responses[0])&&"recorded".equals(responses[1])) {
