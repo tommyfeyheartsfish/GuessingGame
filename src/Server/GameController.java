@@ -1,21 +1,24 @@
 package Server;
-//GAME LOGIC: player guesses a three-digit number. 
-
-// correctDigits() evaluate the number, return the number of correctly guessed digits in their right position. 
-
-// points() give points to the correctly guessed number and reuturn the points gained in this round. 
 
 import java.util.Random;
 public class GameController {
+    private static GameController instance;
     private final int ANSWER;
     private final String ANSWER_IN_STRING;
 
     //constructor 
     GameController(){
         Random rad =new Random();
-        int max=1000,min=99;
+        int max=1000,min=100;
         ANSWER = rad.nextInt((max - min + 1) + min);
         ANSWER_IN_STRING=String.valueOf(ANSWER);
+    }
+
+    public static synchronized GameController getInstance() {
+        if (instance == null) {
+            instance = new GameController();
+        }
+        return instance;
     }
 
     public int correctDigits(String guess){

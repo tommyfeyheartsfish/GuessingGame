@@ -1,11 +1,5 @@
 package Server;
 
-//The main class that starts the server and listens for incoming client connections.
-
-//When a new client connection is accepted, Server creates a new instance of Client and passes the client's socket to it.
-
-//It then spawns a new thread for the Client instance to manage the communication with this client.
-
 import java.net.*;
 import java.io.*;
  
@@ -28,7 +22,6 @@ public class ServerMain
         try(ServerSocket serverSocket = new ServerSocket(port)){
             connectionManager connectionManager = new connectionManager();
             System.out.println("Server started on port "+ port);
-
             while(running){
                 try{
                     clientSocket = serverSocket.accept();

@@ -1,12 +1,12 @@
 package Client;
-//Handles all user interactions, displaying prompts and messages, and collecting user inputs.
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class UserInterface {
+public class UserInterface implements Runnable{
     private BufferedReader stdIn;
     private PrintWriter out;
     private BufferedReader in;
@@ -22,7 +22,14 @@ public class UserInterface {
     }
 
     public void start() {
+        // Start a thread to continuously read messages from the server
+        new Thread(this).start();
+        // Start a new thread for handling user input and commands
+        new Thread(this::handleUserInput).start();
+    }
+        private void handleUserInput() {
         try {
+            
             printWelcomeMessage();
             String username = promptForUsername();
             out.println("clientOnline"); // Send the username to the server
@@ -35,8 +42,9 @@ public class UserInterface {
             String command=null;
             do{
                 command = promptForCommand();
+                
             }while(!command.equalsIgnoreCase("quit"));
-            
+
         } catch (IOException e) {
             System.out.println("An error occurred: " + e.getMessage());
             e.printStackTrace();
@@ -210,6 +218,29 @@ public class UserInterface {
             System.out.println("-- ---- --- -- -- - - - ---- ---- ---- -- --- ------ ---- --- -------");
     }
 
+    private void readServerMessages() {
+        
+        try {
+            String serverMessage;
+            while ((serverMessage = in.readLine()) != null) {
+                processServerMessage(serverMessage);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading from server: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void processServerMessage(String message) {
+        if (message.startsWith("Rankings:")) {
+            // Modify the message or handle it differently
+            System.out.println(message);
+        } 
+    }
+    
+    @Override
+    public void run() {
+        readServerMessages();
+    }
 
     public static void main(String[] args) {
         // Example usage

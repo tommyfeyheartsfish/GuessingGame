@@ -1,7 +1,5 @@
 package Server;
-//Parses and processes RPC requests, dispatching them to the appropriate handler methods.
-//read in from the client 
-//
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +38,7 @@ public class RPCProcessor {
             case "print score":
                 response = printScore();
                 break;
+                //TODO: pass when called, the client whill be taken off from the rank for thid around
             case "pass":
                 response = printGuesses();
                 break;

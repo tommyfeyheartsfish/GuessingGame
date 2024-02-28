@@ -1,8 +1,7 @@
-//A singleton class that maintains global state information (e.g., list of connected clients, shared resources)It also provides thread-safe access methods to modify or read the state.
-
-//Accessed and modified by ClientHandler instances, requiring careful synchronization to prevent race conditions and ensure data consistency.
 package Server;
+
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -23,13 +22,13 @@ public class GlobalContext{
    
         // Singleton instance
         private static volatile GlobalContext instance;
-    
+        // private static final GlobalContext instance = new GlobalContext();
         // Thread-safe collection for global state
         private final ConcurrentHashMap<String, Client> clientData;
         private final ConcurrentHashMap<String, Boolean> hasGuessed; 
         private final AtomicBoolean gameEnded;
         private long gameStartTime;
-        private GameController gc;
+ 
         private ScheduledExecutorService scheduler;
 
         // Method to get the singleton instance
@@ -53,12 +52,12 @@ public class GlobalContext{
             startGame();
         }
        
-        private void startGame() {
+        public synchronized void startGame() {
             gameStartTime = System.currentTimeMillis();
             gameEnded.set(false);
             // Schedule the game to end after 10 minutes
             scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
-            gc = new GameController();
+            GameController.getInstance();
         }
     
         
@@ -70,7 +69,7 @@ public class GlobalContext{
             startGame();      // Start the new game
         }
 
-        private void resetGameState() {
+        private synchronized void resetGameState() {
             hasGuessed.clear(); 
 
             clientData.forEach((key, client) -> {
@@ -78,10 +77,10 @@ public class GlobalContext{
                 client.setLastGuessedNum(null);});
         }
 
-        public String guess(String clientId, String guess) {
+        public synchronized String guess(String clientId, String guess) {
             // Perform guessing logic, e.g., determine the number of correctly guessed digits
-            int correctlyGuessedDigits = gc.correctDigits(guess); // Stub for actual check logic
-            int pointGain = gc.pointGain(correctlyGuessedDigits);
+            int correctlyGuessedDigits = GameController.getInstance().correctDigits(guess); // Stub for actual check logic
+            int pointGain = GameController.getInstance().pointGain(correctlyGuessedDigits);
         
             Client client = clientData.get(clientId);
             if (client != null) {
@@ -91,10 +90,10 @@ public class GlobalContext{
                 client.setHasGuessed(true);
                 playerGuessed(clientId);
             }
-            return gc.getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
+            return GameController.getInstance().getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
         }
 
-        public void playerGuessed(String key) {
+        public synchronized void playerGuessed(String key) {
             hasGuessed.put(key, true);
             checkAllPlayersGuessed();
         }
@@ -105,7 +104,7 @@ public class GlobalContext{
             }
         }
 
-        public void endGame() {
+        public synchronized void endGame() {
             if (gameEnded.compareAndSet(false, true)) {
                 String message = printScore();
                 broadcastMessage(message);  
@@ -114,8 +113,17 @@ public class GlobalContext{
             }
         }
         public void broadcastMessage(String message) {
-            clientData.values().forEach(client -> client.sendMessage(message));
+                
+                // Snapshot the clients outside of synchronization block
+        List<Client> clientsSnapshot;
+        synchronized (this) {
+            clientsSnapshot = new ArrayList<>(clientData.values());
         }
+        // Now broadcast outside of the synchronized block
+        for (Client client : clientsSnapshot) {
+            client.sendMessage(message);
+        }
+            }
         
          //for printing the scores after the game ended 
         private String printScore(){
@@ -144,37 +152,37 @@ public class GlobalContext{
                     .collect(Collectors.toList()); // Collect results into a list
         }
 
-        public boolean isGameEnded() {
+        public synchronized boolean isGameEnded() {
             return gameEnded.get();
         }
 
-        public int addItem(String key, Client value) {
+        public synchronized int addItem(String key, Client value) {
                 clientData.put(key, value);
                 return 1;
         }
     
-        public void updateItem(String key, Client newValue) {
+        public synchronized void updateItem(String key, Client newValue) {
             // The same as addItem in functionality, as ConcurrentHashMap replaces the value for the given key
             clientData.put(key, newValue);
         }
         
-        public void removeItem(String key) {
+        public synchronized void removeItem(String key) {
             clientData.remove(key);
         }
     
-        public void clearItems() {
+        public synchronized void clearItems() {
             clientData.clear();
         }
         
-        public boolean keyFound(String key){
+        public synchronized boolean keyFound(String key){
             return clientData.containsKey(key);
         }
 
-        public int getOnlineClientCount() {
+        public synchronized int getOnlineClientCount() {
             return clientData.size();
         }
 
-        public Set<String> getOnlineClients() {
+        public synchronized Set<String> getOnlineClients() {
             return new HashSet<>(clientData.keySet());
         }
     }

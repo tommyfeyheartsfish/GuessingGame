@@ -1,11 +1,4 @@
 package Server;
-//Responsible for managing the communication with an individual client. It runs in a separate thread for each client and handles all RPCs
-
-//Runs in its own thread for each client connection.
-
-//Handles all interactions with a client, such as receiving requests, processing them (e.g., by calling methods in GameController), and sending responses back to the client.
-
-//Uses synchronization mechanisms (like mutexes) when accessing or modifying shared resources to ensure thread safety.
 
     import java.io.BufferedReader;
     import java.io.InputStreamReader;
