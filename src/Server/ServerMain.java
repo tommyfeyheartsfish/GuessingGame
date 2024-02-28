@@ -26,12 +26,13 @@ public class ServerMain
     public void startServer(){
         running = true;
         try(ServerSocket serverSocket = new ServerSocket(port)){
+            connectionManager connectionManager = new connectionManager();
             System.out.println("Server started on port "+ port);
 
             while(running){
                 try{
                     clientSocket = serverSocket.accept();
-
+                    
                     //create and start a new Client thread for each client connection
                     new Thread(new ClientHandler(clientSocket)).start();
                 }catch(IOException e){

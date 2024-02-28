@@ -1,11 +1,13 @@
 package Server;
 
+import java.io.PrintWriter;
+
 public class Client {
     private int score;
     private String lastGuessedNum;
     private int lastCorrectlyGuessedNum;
     private String username; // Assuming you need a username field as well
-
+    private PrintWriter out;
     private boolean hasGuessed;
 
     // Constructor
@@ -66,6 +68,19 @@ public class Client {
     public void setUsername(String name){
         this.username = name;
 
+    }
+    public void setWriter(PrintWriter out) {
+        this.out = out;
+    }
+
+    public PrintWriter getWriter() {
+        return this.out;
+    }
+
+    public void sendMessage(String message) {
+        if(out != null) {
+            out.println(message);
+        }
     }
 }
 
