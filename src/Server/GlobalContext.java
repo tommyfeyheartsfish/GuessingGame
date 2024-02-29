@@ -57,7 +57,7 @@ public class GlobalContext{
             gameEnded.set(false);
             // Schedule the game to end after 10 minutes
             scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
-            GameController.getInstance().setNewAnwer();;
+            GameController.getInstance();
         }
     
         
@@ -70,8 +70,10 @@ public class GlobalContext{
         }
 
         private synchronized void resetGameState() {
-            hasGuessed.clear(); 
-
+            for (String key : hasGuessed.keySet()) {
+                hasGuessed.put(key, false);
+            }
+            GameController.getInstance().setNewAnwer();
             clientData.forEach((key, client) -> {
                 client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
                 client.setLastGuessedNum(null);
@@ -112,10 +114,9 @@ public class GlobalContext{
             String message=null;
             if (gameEnded.compareAndSet(false, true)) {
                 message = printScore();
-                // broadcastMessage(message);  
-                scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
+                // scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
                 //assuming server is not shuting down
-                
+   
             }
             return message;
         }
@@ -175,6 +176,7 @@ public class GlobalContext{
         
         public synchronized void removeItem(String key) {
             clientData.remove(key);
+            hasGuessed.remove(key);
         }
     
         public synchronized void clearItems() {

@@ -199,9 +199,11 @@ public class UserInterface{
                 if(ranking.startsWith("Rankings:"))
                 {
                     System.out.println(ranking);
-                    System.out.println(" ");
                     System.out.println("This round ends.");
                     gameHasEnd=true;
+                    newClient.setStatus(false);
+                    System.out.println();
+
                 }
                 else
                 {
@@ -213,7 +215,8 @@ public class UserInterface{
                     }
                 }
                 }
-                newClient.setStatus(false);
+                out.println("restart");
+                System.out.println(in.readLine());
             }
     
 

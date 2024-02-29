@@ -46,11 +46,19 @@ public class RPCProcessor {
             case "isGameEnded":
                 response = checkGameStatus();
                 break;
+            case "restart":
+                response = startNewGame();
+                break;
             default:
                 response ="Unknown RPC call: " + input;
                 break;
         }
         return response;
+    }
+
+    public String startNewGame(){
+        GlobalContext.getInstance().startNewGame();
+        return "Starting a new game...";
     }
     public String addUser(){
         //if there is a third item in the array 
@@ -99,6 +107,7 @@ public class RPCProcessor {
      private String disconnect(){
 
         GlobalContext.getInstance().removeItem(cl.getUsername());
+       
         return "removed";
      }
  

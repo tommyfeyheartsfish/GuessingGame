@@ -8,8 +8,10 @@ public class GameController {
 
     //constructor 
     GameController(){
-       answer = 0;
-       answer_in_String=null;
+        Random rad =new Random();
+        // int max=1000,min=100;
+        answer = rad.nextInt(900) + 100; 
+        answer_in_String=String.valueOf(answer);
     }
 
     public static synchronized GameController getInstance() {
