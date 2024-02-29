@@ -57,7 +57,7 @@ public class GlobalContext{
             gameEnded.set(false);
             // Schedule the game to end after 10 minutes
             scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
-            GameController.getInstance();
+            GameController.getInstance().setNewAnwer();;
         }
     
         
@@ -74,7 +74,8 @@ public class GlobalContext{
 
             clientData.forEach((key, client) -> {
                 client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
-                client.setLastGuessedNum(null);});
+                client.setLastGuessedNum(null);
+            client.setHasGuessed(false);});
         }
 
         public synchronized String guess(String clientId, String guess) {
@@ -88,29 +89,35 @@ public class GlobalContext{
                 client.setLastGuessedNum(String.valueOf(guess));
                 client.setLastCorrectlyGuessedNum(correctlyGuessedDigits);
                 client.setHasGuessed(true);
-                playerGuessed(clientId);
+                // playerGuessed(clientId);
             }
             return GameController.getInstance().getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
         }
 
-        public synchronized void playerGuessed(String key) {
-            hasGuessed.put(key, true);
-            checkAllPlayersGuessed();
+        public synchronized void playerGuessed(String key, boolean played) {
+            hasGuessed.put(key, played);
+            
         }
 
-        private void checkAllPlayersGuessed() {
+        public synchronized String checkAllPlayersGuessed() {
             if (hasGuessed.values().stream().allMatch(Boolean::booleanValue) && !gameEnded.get()) {
-                endGame();
+               return endGame();
             }
+            else 
+                return "waiting for other players"; 
+
         }
 
-        public synchronized void endGame() {
+        public String endGame() {
+            String message=null;
             if (gameEnded.compareAndSet(false, true)) {
-                String message = printScore();
-                broadcastMessage(message);  
+                message = printScore();
+                // broadcastMessage(message);  
                 scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
                 //assuming server is not shuting down
+                
             }
+            return message;
         }
         public void broadcastMessage(String message) {
                 
@@ -134,7 +141,7 @@ public class GlobalContext{
             {
                 String username = rankedClients.get(i).getKey();
                 int score = rankedClients.get(i).getValue().getScore();
-                sb.append((i + 1) + ". " + username + " - Score: " + score);
+                sb.append((i + 1) + ". " + username + " - Score: " + score+"     ");
             }
             return sb.toString();
         }

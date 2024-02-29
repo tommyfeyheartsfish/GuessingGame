@@ -3,15 +3,13 @@ package Server;
 import java.util.Random;
 public class GameController {
     private static GameController instance;
-    private final int ANSWER;
-    private final String ANSWER_IN_STRING;
+    private int answer;
+    private String answer_in_String;
 
     //constructor 
     GameController(){
-        Random rad =new Random();
-        int max=1000,min=100;
-        ANSWER = rad.nextInt((max - min + 1) + min);
-        ANSWER_IN_STRING=String.valueOf(ANSWER);
+       answer = 0;
+       answer_in_String=null;
     }
 
     public static synchronized GameController getInstance() {
@@ -20,13 +18,19 @@ public class GameController {
         }
         return instance;
     }
+    public void setNewAnwer(){
+        Random rad =new Random();
+        // int max=1000,min=100;
+        answer = rad.nextInt(900) + 100; 
+        answer_in_String=String.valueOf(answer);
+    }
 
     public int correctDigits(String guess){
         int count = 0;
 
-        int minLength = Math.min(ANSWER_IN_STRING.length(), guess.length());
+        int minLength = Math.min(answer_in_String.length(), guess.length());
         for (int i = 0; i < minLength; i++) {
-            if (ANSWER_IN_STRING.charAt(i) == guess.charAt(i)) {
+            if (answer_in_String.charAt(i) == guess.charAt(i)) {
                 // Increment the counter if characters match at the same position
                 count++;
             }
@@ -41,7 +45,7 @@ public class GameController {
     }
     public String getAnswer()
     {
-        return ANSWER_IN_STRING;
+        return answer_in_String;
     }
 
 }

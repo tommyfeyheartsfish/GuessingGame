@@ -31,6 +31,7 @@ public class RPCProcessor {
                 break;
             case "guess":
                 response = guess();
+                GlobalContext.getInstance().playerGuessed(cl.getUsername(),true);
                 break; 
             case "score":
                 response = getScore();
@@ -41,6 +42,9 @@ public class RPCProcessor {
                 //TODO: pass when called, the client whill be taken off from the rank for thid around
             case "pass":
                 response = printGuesses();
+                break;
+            case "isGameEnded":
+                response = checkGameStatus();
                 break;
             default:
                 response ="Unknown RPC call: " + input;
@@ -67,6 +71,7 @@ public class RPCProcessor {
             { 
                 cl.setUsername(username);
                 GlobalContext.getInstance().addItem(username,cl);
+                GlobalContext.getInstance().playerGuessed(username, false);
                 return "Username OK";
             } 
         }
@@ -92,20 +97,20 @@ public class RPCProcessor {
     }
 
      private String disconnect(){
-        //remove the player
+
         GlobalContext.getInstance().removeItem(cl.getUsername());
         return "removed";
      }
  
      private String guess(){
-            //call game controller ->call client handler to change the score
+            
             if(inputParts.length!=2)
             {
                 return "space found";
             }
             else if(cl.hasGuessed())
                 return "has guessed";
-            else if(Integer.valueOf(inputParts[1])<0||Integer.valueOf(inputParts[1])>1000)
+            else if(Integer.valueOf(inputParts[1])<100||Integer.valueOf(inputParts[1])>1000)
             {
                 return "number out of range";
             }
@@ -114,7 +119,7 @@ public class RPCProcessor {
             {
                 String guess = inputParts[1];
                 String response = GlobalContext.getInstance().guess(cl.getUsername(), guess);
-                cl.getLastGuessedNum();
+                
                 return "guess recorded " + response;
 
             }
@@ -159,6 +164,11 @@ public class RPCProcessor {
         
         // Return the array containing the words
         return words;
+    }
+
+    private String checkGameStatus(){
+        
+        return GlobalContext.getInstance().checkAllPlayersGuessed();
     }
 
 }
