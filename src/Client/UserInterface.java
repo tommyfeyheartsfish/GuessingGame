@@ -177,10 +177,12 @@ public class UserInterface{
                                 "You get "+score+ " points this round!\n\n");
         } else {
             // Handle unexpected server response
-            System.out.println("Unexpected server response: " + response);
+            System.out.println("Unexpected server response for guess: " + response);
         }
+
         if(guessValid){
             GameEnd();
+            
             return guessValid;
         }
         else 
@@ -189,6 +191,23 @@ public class UserInterface{
 
     //after guess are made, check if other clients has made the guess/ the game has ended. if so, print out the message, if not, wait.
 
+    public void startNewGame()throws IOException
+        {
+            out.println("myGameEnded");
+            String reply = in.readLine();
+            if(reply.equals("AllEnd"))
+            {
+                out.println("startNewGame");
+                System.out.println(in.readLine());
+            }
+            else if(reply.equals("wait"))
+            {
+                System.out.println("testing for waiting");
+            }else {
+                // Handle unexpected server response
+                System.out.println("Unexpected server response for start new game: " + reply);
+            }
+        }   
     private void GameEnd()throws IOException{
             boolean gameHasEnd=false;
 
@@ -196,13 +215,15 @@ public class UserInterface{
             {
                 out.println("isGameEnded");
                 String ranking = in.readLine();
-                if(ranking.startsWith("Rankings:"))
+                if(ranking.startsWith("Ranki"))
                 {
                     System.out.println(ranking);
                     System.out.println("This round ends.");
                     gameHasEnd=true;
+                    startNewGame();
                     newClient.setStatus(false);
                     System.out.println();
+                   
 
                 }
                 else
@@ -215,8 +236,7 @@ public class UserInterface{
                     }
                 }
                 }
-                out.println("restart");
-                System.out.println(in.readLine());
+                
             }
     
 

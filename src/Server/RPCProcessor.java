@@ -9,6 +9,7 @@ public class RPCProcessor {
     private String input;
     private String[] inputParts;
     private Client cl;
+    private  String response=null;
 
     public RPCProcessor(String input, Client client){
         this.input = input; 
@@ -18,7 +19,7 @@ public class RPCProcessor {
     }
 
     public String rpcProcessor(){
-        String response=null;
+      
         switch (inputParts[0]){
             case "checkUsername":
                 response = addUser();
@@ -46,8 +47,11 @@ public class RPCProcessor {
             case "isGameEnded":
                 response = checkGameStatus();
                 break;
-            case "restart":
+            case "startNewGame":
                 response = startNewGame();
+                break;
+            case "myGameEnded":
+                response = hasEnded();
                 break;
             default:
                 response ="Unknown RPC call: " + input;
@@ -56,9 +60,19 @@ public class RPCProcessor {
         return response;
     }
 
-    public String startNewGame(){
+    public String  startNewGame(){
         GlobalContext.getInstance().startNewGame();
-        return "Starting a new game...";
+        return "game starts";
+    }
+
+    public String hasEnded(){
+        Boolean allGameEnded = GlobalContext.getInstance().playerEnded(cl.getUsername(),true);
+        if(allGameEnded)
+        {
+            return "AllEnd";
+        }
+        else 
+            return "wait";
     }
     public String addUser(){
         //if there is a third item in the array 
@@ -80,6 +94,7 @@ public class RPCProcessor {
                 cl.setUsername(username);
                 GlobalContext.getInstance().addItem(username,cl);
                 GlobalContext.getInstance().playerGuessed(username, false);
+                GlobalContext.getInstance().playerEnded(cl.getUsername(),false);
                 return "Username OK";
             } 
         }

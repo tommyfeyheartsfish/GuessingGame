@@ -22,12 +22,13 @@ public class GlobalContext{
    
         // Singleton instance
         private static volatile GlobalContext instance;
-        // private static final GlobalContext instance = new GlobalContext();
-        // Thread-safe collection for global state
+    
         private final ConcurrentHashMap<String, Client> clientData;
         private final ConcurrentHashMap<String, Boolean> hasGuessed; 
+        private final ConcurrentHashMap<String, Boolean> hasReturnedEndGame; 
         private final AtomicBoolean gameEnded;
         private long gameStartTime;
+        private String message=null;
  
         private ScheduledExecutorService scheduler;
 
@@ -47,6 +48,7 @@ public class GlobalContext{
         private GlobalContext() {
             clientData = new ConcurrentHashMap<>();
             hasGuessed = new ConcurrentHashMap<>();
+            hasReturnedEndGame = new ConcurrentHashMap<>();
             gameEnded = new AtomicBoolean(false);
             scheduler = Executors.newScheduledThreadPool(1);
             startGame();
@@ -71,6 +73,9 @@ public class GlobalContext{
 
         private synchronized void resetGameState() {
             for (String key : hasGuessed.keySet()) {
+                hasGuessed.put(key, false);
+            }
+            for (String key : hasReturnedEndGame.keySet()) {
                 hasGuessed.put(key, false);
             }
             GameController.getInstance().setNewAnwer();
@@ -101,8 +106,20 @@ public class GlobalContext{
             
         }
 
+        public synchronized boolean playerEnded(String key, boolean hasEnded) {
+            hasReturnedEndGame.put(key, hasEnded);
+            return checkAllPlayersEnded();
+        }
+        private synchronized boolean checkAllPlayersEnded() {
+            if (hasReturnedEndGame.values().stream().allMatch(Boolean::booleanValue) ) {
+            //    startNewGame();
+               return true;
+            }
+            else 
+                return false;
+        }
         public synchronized String checkAllPlayersGuessed() {
-            if (hasGuessed.values().stream().allMatch(Boolean::booleanValue) && !gameEnded.get()) {
+            if (hasGuessed.values().stream().allMatch(Boolean::booleanValue) ) {
                return endGame();
             }
             else 
@@ -111,7 +128,7 @@ public class GlobalContext{
         }
 
         public String endGame() {
-            String message=null;
+            
             if (gameEnded.compareAndSet(false, true)) {
                 message = printScore();
                 // scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
