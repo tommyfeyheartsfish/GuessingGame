@@ -202,7 +202,7 @@ public class UserInterface{
             }
             else if(reply.equals("wait"))
             {
-                System.out.println("testing for waiting");
+                System.out.println("waiting");
             }else {
                 // Handle unexpected server response
                 System.out.println("Unexpected server response for start new game: " + reply);
@@ -215,6 +215,11 @@ public class UserInterface{
             {
                 out.println("isGameEnded");
                 String ranking = in.readLine();
+                if (ranking == null) {
+                    // The connection might have been closed; handle appropriately
+                    System.err.println("Connection closed by the server.");
+                    break; // Exit the loop or perform additional cleanup
+                }
                 if(ranking.startsWith("Ranki"))
                 {
                     System.out.println(ranking);
@@ -228,6 +233,8 @@ public class UserInterface{
                 }
                 else
                 {
+                    //TEST
+                    System.out.println(ranking);
                     try {
                         Thread.sleep(1000); // Sleep for 1 second before checking again
                     } catch (InterruptedException e) {

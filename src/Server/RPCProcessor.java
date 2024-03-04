@@ -32,7 +32,7 @@ public class RPCProcessor {
                 break;
             case "guess":
                 response = guess();
-                GlobalContext.getInstance().playerGuessed(cl.getUsername(),true);
+                // GlobalContext.getInstance().playerGuessed(cl.getUsername(),true);
                 break; 
             case "score":
                 response = getScore();
@@ -132,8 +132,11 @@ public class RPCProcessor {
             {
                 return "space found";
             }
+
             else if(cl.hasGuessed())
-                return "has guessed";
+               {
+                 return "has guessed";
+               }
             else if(Integer.valueOf(inputParts[1])<100||Integer.valueOf(inputParts[1])>1000)
             {
                 return "number out of range";
@@ -143,7 +146,8 @@ public class RPCProcessor {
             {
                 String guess = inputParts[1];
                 String response = GlobalContext.getInstance().guess(cl.getUsername(), guess);
-                
+                GlobalContext.getInstance().playerGuessed(cl.getUsername(),true);
+
                 return "guess recorded " + response;
 
             }

@@ -2,6 +2,7 @@ package Server;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -12,17 +13,14 @@ import java.util.stream.Collectors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GlobalContext{
-    //arraylist that manage the database for the game status, static
-
-    //rank the player based on their score, return the arraylist 
-    //private constructor 
-   
         // Singleton instance
         private static volatile GlobalContext instance;
-    
+        private final Semaphore semaphore = new Semaphore(1);
+
         private final ConcurrentHashMap<String, Client> clientData;
         private final ConcurrentHashMap<String, Boolean> hasGuessed; 
         private final ConcurrentHashMap<String, Boolean> hasReturnedEndGame; 
@@ -54,38 +52,52 @@ public class GlobalContext{
             startGame();
         }
        
-        public synchronized void startGame() {
-            gameStartTime = System.currentTimeMillis();
-            gameEnded.set(false);
-            // Schedule the game to end after 10 minutes
-            scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
-            GameController.getInstance();
+        public void startGame() {
+            try {
+                semaphore.acquire();
+                gameStartTime = System.currentTimeMillis();
+                gameEnded.set(false);
+                // Schedule the game to end after 10 minutes
+                scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
+                GameController.getInstance();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                semaphore.release();
+            }
         }
     
+        public void startNewGame() {
+         
+                resetGameState(); // Reset the game state for a new game
+                startGame();      // Start the new game
+        
+        }     // Start the new game
         
 
-       
-
-        public void startNewGame() {
-            resetGameState(); // Reset the game state for a new game
-            startGame();      // Start the new game
+        private void resetGameState() {
+            try {
+                semaphore.acquire();
+                for (String key : hasGuessed.keySet()) {
+                    hasGuessed.put(key, false);
+                }
+                for (String key : hasReturnedEndGame.keySet()) {
+                    hasReturnedEndGame.put(key, false);
+                }
+                GameController.getInstance().setNewAnwer();
+                clientData.forEach((key, client) -> {
+                    client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
+                    client.setLastGuessedNum(null);
+                client.setHasGuessed(false);
+            });
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }finally{
+            semaphore.release();
+        }
         }
 
-        private synchronized void resetGameState() {
-            for (String key : hasGuessed.keySet()) {
-                hasGuessed.put(key, false);
-            }
-            for (String key : hasReturnedEndGame.keySet()) {
-                hasGuessed.put(key, false);
-            }
-            GameController.getInstance().setNewAnwer();
-            clientData.forEach((key, client) -> {
-                client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
-                client.setLastGuessedNum(null);
-            client.setHasGuessed(false);});
-        }
-
-        public synchronized String guess(String clientId, String guess) {
+        public String guess(String clientId, String guess) {
             // Perform guessing logic, e.g., determine the number of correctly guessed digits
             int correctlyGuessedDigits = GameController.getInstance().correctDigits(guess); // Stub for actual check logic
             int pointGain = GameController.getInstance().pointGain(correctlyGuessedDigits);
@@ -101,24 +113,39 @@ public class GlobalContext{
             return GameController.getInstance().getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
         }
 
-        public synchronized void playerGuessed(String key, boolean played) {
-            hasGuessed.put(key, played);
-            
+        public void playerGuessed(String key, boolean played) {
+            try {
+                semaphore.acquire(); 
+                hasGuessed.put(key, played);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+            } finally {
+                semaphore.release(); 
+            }
         }
 
-        public synchronized boolean playerEnded(String key, boolean hasEnded) {
-            hasReturnedEndGame.put(key, hasEnded);
-            return checkAllPlayersEnded();
+        public boolean playerEnded(String key, boolean hasEnded) {
+            boolean allPlayersEnded = false;
+            try {
+                semaphore.acquire(); 
+                hasReturnedEndGame.put(key, hasEnded);
+                allPlayersEnded = checkAllPlayersEnded();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+            } finally {
+                semaphore.release(); 
+            }
+            return allPlayersEnded;
         }
-        private synchronized boolean checkAllPlayersEnded() {
+
+        private boolean checkAllPlayersEnded() {
             if (hasReturnedEndGame.values().stream().allMatch(Boolean::booleanValue) ) {
-            //    startNewGame();
                return true;
             }
             else 
                 return false;
         }
-        public synchronized String checkAllPlayersGuessed() {
+        public String checkAllPlayersGuessed() {
             if (hasGuessed.values().stream().allMatch(Boolean::booleanValue) ) {
                return endGame();
             }
@@ -129,26 +156,19 @@ public class GlobalContext{
 
         public String endGame() {
             
-            if (gameEnded.compareAndSet(false, true)) {
-                message = printScore();
-                // scheduler.schedule(this::startNewGame, 5, TimeUnit.SECONDS);
-                //assuming server is not shuting down
-   
+            try {
+                semaphore.acquire();
+                    gameEnded.set(true);
+                    message = printScore();
+            
+                return message;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return "Error: Interrupted during end game operation";
+            } finally {
+                semaphore.release();
             }
-            return message;
         }
-        public void broadcastMessage(String message) {
-                
-                // Snapshot the clients outside of synchronization block
-        List<Client> clientsSnapshot;
-        synchronized (this) {
-            clientsSnapshot = new ArrayList<>(clientData.values());
-        }
-        // Now broadcast outside of the synchronized block
-        for (Client client : clientsSnapshot) {
-            client.sendMessage(message);
-        }
-            }
         
          //for printing the scores after the game ended 
         private String printScore(){
@@ -163,6 +183,7 @@ public class GlobalContext{
             }
             return sb.toString();
         }
+
         public List<Map.Entry<String, Client>> rankClients() {
         // Sort clients by score in descending order
         return clientData.entrySet().stream()
@@ -177,39 +198,78 @@ public class GlobalContext{
                     .collect(Collectors.toList()); // Collect results into a list
         }
 
-        public synchronized boolean isGameEnded() {
+        public boolean isGameEnded() {
             return gameEnded.get();
         }
 
-        public synchronized int addItem(String key, Client value) {
-                clientData.put(key, value);
-                return 1;
-        }
+        public void addItem(String key, Client value) {
+                 try {
+                    semaphore.acquire();
+                    clientData.put(key, value);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Handle the InterruptedException
+                } finally {
+                    semaphore.release();
+                }
+            }
     
-        public synchronized void updateItem(String key, Client newValue) {
-            // The same as addItem in functionality, as ConcurrentHashMap replaces the value for the given key
-            clientData.put(key, newValue);
+        public void updateItem(String key, Client newValue) {
+            try {
+                semaphore.acquire();
+                clientData.put(key, newValue);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Handle the InterruptedException
+            } finally {
+                semaphore.release();
+            }
         }
         
-        public synchronized void removeItem(String key) {
-            clientData.remove(key);
-            hasGuessed.remove(key);
+        public void removeItem(String key) {
+            try {
+                semaphore.acquire();
+                clientData.remove(key);
+                hasGuessed.remove(key); 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+            } finally {
+                semaphore.release();
+            }
         }
     
-        public synchronized void clearItems() {
+        public void clearItems() {
             clientData.clear();
         }
         
-        public synchronized boolean keyFound(String key){
-            return clientData.containsKey(key);
+        public boolean keyFound(String key){
+            boolean found;
+            try {
+                semaphore.acquire(); 
+                found = clientData.containsKey(key);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+                found = false; 
+            } finally {
+                semaphore.release(); 
+            }
+            return found;
         }
 
-        public synchronized int getOnlineClientCount() {
+        public int getOnlineClientCount() {
             return clientData.size();
         }
 
-        public synchronized Set<String> getOnlineClients() {
-            return new HashSet<>(clientData.keySet());
+        public Set<String> getOnlineClients() {
+            Set<String> onlineClients = null;
+            try {
+                semaphore.acquire(); 
+                onlineClients = new HashSet<>(clientData.keySet());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); 
+                onlineClients = Collections.emptySet(); 
+            } finally {
+                semaphore.release(); 
+            }
+            return onlineClients;
         }
     }
     
