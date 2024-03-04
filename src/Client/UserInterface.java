@@ -277,42 +277,6 @@ public class UserInterface{
             System.out.println();
             System.out.println("-- ---- --- -- -- - - - ---- ---- ---- -- --- ------ ---- --- -------");
     }
-
-    // private void readServerMessages() {
-        
-    //     try {
-    //         String serverMessage;
-    //         while ((serverMessage = in.readLine()) != null) {
-    //             processServerMessage(serverMessage);
-    //         }
-    //     } catch (IOException e) {
-    //         System.out.println("Error reading from server: " + e.getMessage());
-    //         e.printStackTrace();
-    //     }
-    // }
-    // private void processServerMessage(String message) {
-    //     if (message.startsWith("Rankings:")) {
-    //         // Modify the message or handle it differently
-    //         System.out.println(message);
-    //     } 
-    // }
-    
-    // @Override
-    // public void run() {
-    //     readServerMessages();
-    // }
 }
-
-//     public static void main(String[] args) {
-       
-//         try {
-//             Socket socket = new Socket("localhost", 12345); // Connect to the server
-//             UserInterface ui = new UserInterface(socket);
-//             ui.start(); // Start the user interface interaction
-//         } catch (IOException e) {
-//             System.out.println("Unable to start the user interface: " + e.getMessage());
-//             e.printStackTrace();
-//         }
-//     }
-// }
+  
 
