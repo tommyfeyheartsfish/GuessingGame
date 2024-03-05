@@ -54,6 +54,4 @@ public class ClientContext {
     public void setStatus(boolean status) {
         this.status = status;
     }
-
-    // Utility methods if needed (e.g., for updating client state, resetting scores, etc.)
 }

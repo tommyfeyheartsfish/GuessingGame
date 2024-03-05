@@ -1,22 +1,22 @@
 package Server;
 
 import java.util.Random;
-public class GameController {
-    private static GameController instance;
+public class GameLogic {
+    private static GameLogic instance;
     private int answer;
     private String answer_in_String;
 
     //constructor 
-    GameController(){
+    GameLogic(){
         Random rad =new Random();
         // int max=1000,min=100;
         answer = rad.nextInt(900) + 100; 
         answer_in_String=String.valueOf(answer);
     }
 
-    public static synchronized GameController getInstance() {
+    public static synchronized GameLogic getInstance() {
         if (instance == null) {
-            instance = new GameController();
+            instance = new GameLogic();
         }
         return instance;
     }
@@ -42,9 +42,10 @@ public class GameController {
 
     public int pointGain(int count){
         final int POINTS_PER_COUNT=10;
-        return count*POINTS_PER_COUNT;
-        
+        final int POINTS_DEDUCT_COUNT = -5; 
+        return count*POINTS_PER_COUNT+POINTS_DEDUCT_COUNT*(3-count);
     }
+    
     public String getAnswer()
     {
         return answer_in_String;

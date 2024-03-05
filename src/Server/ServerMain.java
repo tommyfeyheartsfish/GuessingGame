@@ -20,7 +20,7 @@ public class ServerMain
     public void startServer(){
         running = true;
         try(ServerSocket serverSocket = new ServerSocket(port)){
-            connectionManager connectionManager = new connectionManager();
+            // connectionManager connectionManager = new connectionManager();
             System.out.println("Server started on port "+ port);
             while(running){
                 try{

@@ -32,17 +32,15 @@ public class RPCProcessor {
                 break;
             case "guess":
                 response = guess();
-                // GlobalContext.getInstance().playerGuessed(cl.getUsername(),true);
                 break; 
             case "score":
                 response = getScore();
                 break;
-            case "print score":
-                response = printScore();
-                break;
-                //TODO: pass when called, the client whill be taken off from the rank for thid around
+            // case "print score":
+            //     response = printScore();
+                // break;
             case "pass":
-                response = printGuesses();
+                response = pass();
                 break;
             case "isGameEnded":
                 response = checkGameStatus();
@@ -153,37 +151,22 @@ public class RPCProcessor {
             }
      } 
 
-     //for printing the scores after the game ended 
-     private String printScore(){
-         List<Map.Entry<String, Client>> rankedClients = GlobalContext.getInstance().rankClients();
-         StringBuilder sb=new StringBuilder();
-        sb.append("Rankings:");
-        for (int i = 0; i < rankedClients.size(); i++) 
-        {
-            String username = rankedClients.get(i).getKey();
-            int score = rankedClients.get(i).getValue().getScore();
-            sb.append((i + 1) + ". " + username + " - Score: " + score);
-        }
-        return sb.toString();
-    }
 
     //for fethching the current score of the client
     private String getScore(){
         return String.valueOf(cl.getScore());
     }
 
-    //when a client call end game before the game ends, it returns the guesses has been made by other clients 
-     private String printGuesses(){
-        StringBuilder sb = new StringBuilder();
-        List<String> playersWhoGuessed = GlobalContext.getInstance().getPlayersWhoGuessed(); 
-    if (playersWhoGuessed.isEmpty()) {
-        sb.append("No players have guessed yet.");
-    } else {
-        for (String playerInfo : playersWhoGuessed) {
-            sb.append(playerInfo).append("\n");
-        }
-    }
-    return sb.toString();
+
+     private String pass(){
+
+        GlobalContext.getInstance().playerGuessed(cl.getUsername(), true);
+
+        cl.setHasGuessed(true);
+        cl.setLastGuessedNum(null);
+        cl.setLastCorrectlyGuessedNum(0);
+
+    return "waiting for other players";
      }
 
      private String[] processString(String input) {

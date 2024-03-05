@@ -54,6 +54,16 @@ package Server;
             // }
             return response;
         }
+        private void disconnectClient() {
+            // 从GlobalContext中移除客户端
+            GlobalContext.getInstance().removeItem(cl.getUsername());
+            // 关闭Socket连接
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                // Log exception or handle it as needed
+            }
+        }
     }
     
 

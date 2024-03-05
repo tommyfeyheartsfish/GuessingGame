@@ -130,7 +130,12 @@ public class UserInterface{
         out.println(cli);
         String response = in.readLine();
         cliValid = true;
+        //the guesses made by other players 
         System.out.println(response);
+        //check if the game is end 
+        //restart a game 
+        GameEnd();
+
         return cliValid;
     }
 
@@ -234,7 +239,7 @@ public class UserInterface{
                 else
                 {
                     //TEST
-                    System.out.println(ranking);
+                    System.out.print("waiting---");
                     try {
                         Thread.sleep(1000); // Sleep for 1 second before checking again
                     } catch (InterruptedException e) {
@@ -273,9 +278,8 @@ public class UserInterface{
     public void printCommandLineHelp(){
         String commandLine=
             "guess [3-digit-number]   make a guess on a number, it will return the amount of digits you correctly guessed and how much your just scored \n\n"+
-            "pass                     pass this round, it will return the answer and the guesses has been made by other players\n\n"+
-
-            "score                    print your current score\n\n"+
+            "pass                     pass this round\n\n"+
+            "check score                    print your current score\n\n"+
             "quit                     disconnect youself from the server\n\n";
             System.out.println();
             System.out.println("--- -- ---- ---- --- -- --- --- ---- -- -- -- -- -- - -- --- --- ----");

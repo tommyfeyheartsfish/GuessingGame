@@ -59,7 +59,7 @@ public class GlobalContext{
                 gameEnded.set(false);
                 // Schedule the game to end after 10 minutes
                 scheduler.schedule(this::endGame, 2, TimeUnit.MINUTES);
-                GameController.getInstance();
+                GameLogic.getInstance();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } finally {
@@ -84,7 +84,7 @@ public class GlobalContext{
                 for (String key : hasReturnedEndGame.keySet()) {
                     hasReturnedEndGame.put(key, false);
                 }
-                GameController.getInstance().setNewAnwer();
+                GameLogic.getInstance().setNewAnwer();
                 clientData.forEach((key, client) -> {
                     client.setLastCorrectlyGuessedNum(0); // Reset the last correctly guessed number
                     client.setLastGuessedNum(null);
@@ -99,8 +99,8 @@ public class GlobalContext{
 
         public String guess(String clientId, String guess) {
             // Perform guessing logic, e.g., determine the number of correctly guessed digits
-            int correctlyGuessedDigits = GameController.getInstance().correctDigits(guess); // Stub for actual check logic
-            int pointGain = GameController.getInstance().pointGain(correctlyGuessedDigits);
+            int correctlyGuessedDigits = GameLogic.getInstance().correctDigits(guess); // Stub for actual check logic
+            int pointGain = GameLogic.getInstance().pointGain(correctlyGuessedDigits);
         
             Client client = clientData.get(clientId);
             if (client != null) {
@@ -110,7 +110,7 @@ public class GlobalContext{
                 client.setHasGuessed(true);
                 // playerGuessed(clientId);
             }
-            return GameController.getInstance().getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
+            return GameLogic.getInstance().getAnswer() +" " + correctlyGuessedDigits + " " + pointGain;
         }
 
         public void playerGuessed(String key, boolean played) {
