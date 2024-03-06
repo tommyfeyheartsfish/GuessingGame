@@ -36,9 +36,6 @@ public class RPCProcessor {
             case "score":
                 response = getScore();
                 break;
-            // case "print score":
-            //     response = printScore();
-                // break;
             case "pass":
                 response = pass();
                 break;
@@ -120,6 +117,7 @@ public class RPCProcessor {
      private String disconnect(){
 
         GlobalContext.getInstance().removeItem(cl.getUsername());
+
        
         return "removed";
      }
@@ -135,7 +133,7 @@ public class RPCProcessor {
                {
                  return "has guessed";
                }
-            else if(Integer.valueOf(inputParts[1])<100||Integer.valueOf(inputParts[1])>1000)
+            else if(!isInteger(inputParts[1])||Integer.valueOf(inputParts[1])<100||Integer.valueOf(inputParts[1])>1000)
             {
                 return "number out of range";
             }
@@ -182,4 +180,12 @@ public class RPCProcessor {
         return GlobalContext.getInstance().checkAllPlayersGuessed();
     }
 
+    public static boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true; // String can be converted to an integer
+        } catch (NumberFormatException e) {
+            return false; // String cannot be converted to an integer
+        }
+    }
 }

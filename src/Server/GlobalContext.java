@@ -229,6 +229,7 @@ public class GlobalContext{
                 semaphore.acquire();
                 clientData.remove(key);
                 hasGuessed.remove(key); 
+                hasReturnedEndGame.remove(key);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt(); 
             } finally {
